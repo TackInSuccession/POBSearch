@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Aubreyad Corpus Search</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --ink-bg:#FAF9F5;
+  --ink-bg-2:#F2F1EA;
+  --ink-bg-3:#EBE9DF;
+  --paper:#1F1E1B;
+  --paper-dim:#59564E;
+  --paper-dim-2:#726F65;
+  --brass:#7C5A1E;
+  --brass-dim:#5E4416;
+  --rust:#F4CB6B;
+  --rust-text:#4A3208;
+  --line:#E2DFD3;
+  --line-soft:#EAE7DB;
+  --teal:#2B6E6B;
+  --teal-dim:#1F4F4D;
+  --red:#A8432B;
+  --red-dim:#7A3020;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+  margin:0;
+  padding:0;
+  background:var(--ink-bg);
+  color:var(--paper);
+  font-family:'Source Serif 4', serif;
+  min-height:100vh;
+}
+
+#app{
+  max-width:920px;
+  margin:0 auto;
+  padding:48px 24px 80px;
+}
+
+.masthead{
+  border-bottom:1px solid var(--line);
+  padding-bottom:28px;
+  margin-bottom:32px;
+  position:relative;
+}
+
+.masthead .eyebrow{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--brass);
+  margin-bottom:10px;
+}
+
+.masthead h1{
+  font-family:'Fraunces', serif;
+  font-weight:700;
+  font-optical-sizing:auto;
+  font-size:clamp(34px,5vw,52px);
+  margin:0 0 8px 0;
+  letter-spacing:-0.01em;
+  color:var(--paper);
+}
+
+.masthead .sub{
+  color:var(--paper-dim);
+  font-size:15px;
+  font-style:normal;
+  max-width:640px;
+  line-height:1.6;
+}
+
+.sub-link{
+  color:var(--brass);
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+
+.sub-link:hover{
+  color:var(--brass-dim);
+}
+
+.search-panel{
+  background:var(--ink-bg-2);
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:22px;
+  margin-bottom:28px;
+}
+
+.search-row{
+  display:flex;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.search-row input[type="text"]{
+  flex:1;
+  background:var(--ink-bg);
+  border:1px solid var(--line);
+  border-radius:2px;
+  color:var(--paper);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:16px;
+  padding:12px 14px;
+  outline:none;
+  transition:border-color 0.15s ease;
+}
+
+.search-row input[type="text"]::placeholder{
+  color:var(--paper-dim-2);
+}
+
+.search-row input[type="text"]:focus{
+  border-color:var(--brass);
+}
+
+.search-row button{
+  background:var(--brass);
+  color:#FBF8F0;
+  border:none;
+  border-radius:2px;
+  font-family:'IBM Plex Mono', monospace;
+  font-weight:600;
+  font-size:13px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  padding:0 22px;
+  cursor:pointer;
+  transition:background 0.15s ease;
+}
+
+.search-row button:hover{
+  background:#6B4C18;
+}
+
+.search-row button:active{
+  background:var(--brass-dim);
+}
+
+.controls-row{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:18px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12.5px;
+  color:var(--paper-dim);
+}
+
+.controls-label{
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  font-size:10.5px;
+  color:var(--paper-dim-2);
+  margin-right:2px;
+}
+
+.book-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  cursor:pointer;
+  user-select:none;
+  transition:all 0.15s ease;
+  color:var(--paper-dim);
+}
+
+.book-chip.active{
+  border-color:var(--brass);
+  color:var(--paper);
+  background:rgba(124,90,30,0.08);
+}
+
+.book-chip .dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--line);
+}
+
+.book-chip.active .dot{
+  background:var(--brass);
+}
+
+.toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  cursor:pointer;
+  user-select:none;
+}
+
+.toggle input{
+  accent-color:var(--brass);
+  width:13px;
+  height:13px;
+  margin-right:8px;
+}
+
+.segmented{
+  display:inline-flex;
+  border:1px solid var(--line);
+  border-radius:3px;
+  overflow:hidden;
+}
+
+.segmented button{
+  background:transparent;
+  border:none;
+  color:var(--paper-dim);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11.5px;
+  padding:6px 11px;
+  cursor:pointer;
+  border-right:1px solid var(--line);
+  transition:all 0.15s ease;
+}
+
+.segmented button:last-child{
+  border-right:none;
+}
+
+.segmented button.active{
+  background:var(--brass);
+  color:#FBF8F0;
+  font-weight:600;
+}
+
+#matchModeToggle button[data-mode="lemma"].active{
+  background:var(--teal);
+}
+
+.segmented button:hover:not(.active){
+  color:var(--paper);
+  background:rgba(124,90,30,0.08);
+}
+
+#matchModeToggle button[data-mode="lemma"]:hover:not(.active){
+  background:rgba(43,110,107,0.1);
+}
+
+.para-block{
+  padding:16px 4px 18px;
+  border-bottom:1px solid var(--line-soft);
+}
+
+.para-block:hover{
+  background:rgba(124,90,30,0.04);
+}
+
+.para-coord{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  color:var(--brass-dim);
+  letter-spacing:0.02em;
+  margin-bottom:8px;
+}
+
+.para-coord .mark{
+  color:var(--brass);
+  margin-right:5px;
+}
+
+.para-coord .hit-count{
+  color:var(--paper-dim-2);
+  margin-left:8px;
+}
+
+.para-text{
+  font-family:'Source Serif 4', serif;
+  font-size:15.5px;
+  line-height:1.75;
+  color:var(--paper-dim);
+  white-space:pre-wrap;
+}
+
+.para-text .match{
+  color:var(--rust-text);
+  background:var(--rust);
+  padding:1px 4px;
+  border-radius:2px;
+  font-weight:600;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:0.92em;
+}
+
+.para-divider{
+  color:var(--brass-dim);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10px;
+  opacity:0.6;
+  display:block;
+  margin:10px 0;
+  letter-spacing:0.15em;
+}
+
+.match-mode-note{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  color:var(--teal-dim);
+  margin-top:10px;
+  padding-left:8px;
+  border-left:2px solid var(--teal);
+}
+
+.prox-mode-note{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  color:var(--brass-dim);
+  margin-top:10px;
+  padding-left:8px;
+  border-left:2px solid var(--brass);
+}
+
+.prox-label{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:13px;
+  color:var(--paper-dim);
+  display:flex;
+  align-items:center;
+  padding:0 2px;
+  white-space:nowrap;
+}
+
+.prox-distance-input{
+  width:52px;
+  background:var(--ink-bg);
+  border:1px solid var(--line);
+  border-radius:2px;
+  color:var(--paper);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:13px;
+  padding:6px 8px;
+  outline:none;
+  text-align:center;
+}
+
+.prox-distance-input:focus{
+  border-color:var(--brass);
+}
+
+#proximityOptionsRow .segmented button{
+  font-size:11px;
+  padding:6px 9px;
+}
+
+.kwic-text .match-b,
+.para-text .match-b{
+  color:#FBF8F0;
+  background:var(--teal);
+  padding:1px 4px;
+  border-radius:2px;
+  font-weight:600;
+  font-family:'IBM Plex Mono', monospace;
+}
+
+.para-text .match-b{
+  font-size:0.92em;
+}
+
+.kwic-text .match-b{
+  font-size:0.9em;
+}
+
+.status-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12.5px;
+  color:var(--paper-dim-2);
+  padding:0 2px;
+  margin-bottom:14px;
+}
+
+.status-bar .count strong{
+  color:var(--brass);
+  font-weight:600;
+}
+
+.results{
+  display:flex;
+  flex-direction:column;
+}
+
+.kwic-line{
+  padding:13px 4px;
+  border-bottom:1px solid var(--line-soft);
+}
+
+.kwic-line:hover{
+  background:rgba(124,90,30,0.04);
+}
+
+.kwic-coord{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  color:var(--brass-dim);
+  letter-spacing:0.02em;
+  margin-bottom:6px;
+}
+
+.kwic-coord .mark{
+  color:var(--brass);
+  margin-right:5px;
+}
+
+.kwic-text{
+  font-family:'Source Serif 4', serif;
+  font-size:15px;
+  line-height:1.6;
+  color:var(--paper-dim);
+  overflow-wrap:break-word;
+}
+
+.kwic-text .match{
+  color:var(--rust-text);
+  background:var(--rust);
+  padding:1px 4px;
+  border-radius:2px;
+  font-weight:600;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:0.9em;
+}
+
+.empty-state, .loading-state{
+  text-align:center;
+  padding:60px 20px;
+  color:var(--paper-dim-2);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:13px;
+  line-height:1.8;
+}
+
+.empty-state .big{
+  font-family:'Fraunces', serif;
+  font-size:20px;
+  color:var(--paper-dim);
+  font-style:italic;
+  margin-bottom:6px;
+}
+
+.load-more{
+  text-align:center;
+  padding:22px 0 4px;
+}
+
+.load-more button{
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--paper-dim);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  padding:9px 20px;
+  border-radius:2px;
+  cursor:pointer;
+}
+
+.load-more button:hover{
+  border-color:var(--brass);
+  color:var(--brass);
+}
+
+footer.note{
+  margin-top:36px;
+  padding-top:18px;
+  border-top:1px solid var(--line-soft);
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  color:var(--paper-dim-2);
+  line-height:1.8;
+}
+
+@media (max-width:600px){
+  .search-row{flex-direction:column;}
+  .search-row button{padding:12px;}
+}
+
+.book-chips-wrap{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  max-width:560px;
+}
+
+.book-chip-actions{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10.5px;
+  color:var(--brass-dim);
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  cursor:pointer;
+  margin-left:4px;
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+
+.book-chip-actions:hover{
+  color:var(--brass);
+}
+
+.book-chip-actions.danger{
+  color:var(--red-dim);
+}
+
+.book-chip-actions.danger:hover{
+  color:var(--red);
+}
+
+.loading-inline{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px;
+  color:var(--paper-dim-2);
+}
+
+.spinner{
+  width:11px;
+  height:11px;
+  border:2px solid var(--line);
+  border-top-color:var(--brass);
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
+
+.fetch-error{
+  color:#A3301A;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px;
+}
+</style>
+<body>
+<div id="app">
+  <div class="masthead">
+    <div class="eyebrow">Concordance &middot; Aubrey&ndash;Maturin Series</div>
+    <h1>The Aubreyad Corpus Search</h1>
+    <div class="sub">A search engine for the Aubrey&ndash;Maturin series. Search a single word or a full phrase. When using the &ldquo;Any word form&rdquo; option, results will include all lemmatized forms (e.g. searching &ldquo;run&rdquo; will yield &ldquo;ran,&rdquo; &ldquo;running,&rdquo; etc.). Note that this edition uses &ndash;ize word endings (&ldquo;realize&rdquo; instead of &ldquo;realise&rdquo;), and otherwise British spelling (harbour, colour, etc.). With thanks to the original <a href="http://www.singularityfps.com/pob/" target="_blank" rel="noopener" class="sub-link">POB search</a>! Have fun!</div>
+  </div>
+
+  <div class="search-panel">
+    <div class="search-row" id="standardSearchRow">
+      <input type="text" id="searchInput" placeholder="Search a word or phrase&hellip; e.g. ship's, Mr., --" autocomplete="off">
+      <button id="searchBtn">Search</button>
+    </div>
+    <div class="search-row" id="proximitySearchRow" style="display:none;">
+      <input type="text" id="proxWordA" placeholder="First word&hellip; e.g. captain" autocomplete="off">
+      <span class="prox-label">near</span>
+      <input type="text" id="proxWordB" placeholder="Second word&hellip; e.g. ship" autocomplete="off">
+      <button id="proxSearchBtn">Search</button>
+    </div>
+    <div class="controls-row">
+      <span class="controls-label">Match</span>
+      <div class="segmented" id="matchModeToggle">
+        <button data-mode="exact" class="active">Exact</button>
+        <button data-mode="lemma">Any word form</button>
+        <button data-mode="proximity">Proximity</button>
+      </div>
+    </div>
+    <div class="controls-row" id="proximityOptionsRow" style="display:none;">
+      <span class="controls-label">Within</span>
+      <input type="number" id="proxDistance" value="8" min="1" max="50" class="prox-distance-input">
+      <span class="controls-label" style="margin-left:0;">words</span>
+      <span class="controls-label" style="margin-left:14px;">Order</span>
+      <div class="segmented" id="proxOrderToggle">
+        <button data-order="either" class="active">Either order</button>
+        <button data-order="before">First before second</button>
+        <button data-order="after">First after second</button>
+      </div>
+    </div>
+    <div class="controls-row" style="align-items:flex-start;">
+      <span class="controls-label" style="padding-top:6px;">Books</span>
+      <div>
+        <div class="book-chips-wrap" id="bookChips"></div>
+        <span class="book-chip-actions" id="selectAllBooks">select all</span>
+        <span class="book-chip-actions danger" id="selectNoneBooks">clear</span>
+      </div>
+    </div>
+    <div class="controls-row" id="exactOptionsRow">
+      <span class="controls-label" id="exactOptionsLabel">Options</span>
+      <label class="toggle" id="caseSensitiveLabel"><input type="checkbox" id="caseSensitive"> case&nbsp;sensitive</label>
+      <label class="toggle" id="wholeWordLabel"><input type="checkbox" id="wholeWord"> whole&nbsp;word</label>
+    </div>
+    <div class="match-mode-note" id="matchModeNote" style="display:none;">
+      Matches any inflected form of each word (e.g. searching "fish" also finds "fishing," "fished," "fishes"; "captain's" matches "captain"). Case and punctuation are ignored.
+    </div>
+    <div class="prox-mode-note" id="proxModeNote" style="display:none;">
+      Finds passages where both words occur within the given distance, matching any inflected form of each (e.g. "captain" also matches "captain's," "captains"). Word order follows the setting above.
+    </div>
+    <div class="controls-row" style="margin-top:14px;">
+      <span class="controls-label">Context</span>
+      <div class="segmented" id="contextModeToggle">
+        <button data-mode="chars" class="active">65 characters</button>
+        <button data-mode="para">Full paragraph</button>
+        <button data-mode="para3">3 paragraphs</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar" id="statusBar" style="display:none;">
+    <span class="count" id="matchCount"></span>
+    <span id="queryEcho"></span>
+  </div>
+
+  <div class="results" id="results">
+    <div class="empty-state" id="emptyState">
+      <div class="big">Nothing searched yet</div>
+      Type a word, a phrase, or punctuation above and press Search.
+    </div>
+  </div>
+
+  <div class="load-more" id="loadMore" style="display:none;">
+    <button id="loadMoreBtn">Show more results</button>
+  </div>
+
+  <footer class="note">
+    Aubrey&ndash;Maturin series, 21 books &middot; private research tool &middot; book text loaded on demand from this repository
+  </footer>
+</div>
+
+<script>
+const CONTEXT_CHARS = 65;
+const PAGE_SIZE = 60;
+const PAGE_SIZE_PARA = 25;
+
+let MANIFEST = [];
+let BOOK_CACHE = new Map();      // id -> { text, paragraphs }
+let LEMMA_TOKEN_CACHE = new Map(); // id -> tokens array
+let LEMMA_VOCAB = null;
+let LEMMA_WORD_TO_LEMMA = null;
+let LEMMA_INDEX = new Map();
+let LEMMA_DATA_LOADING = null;
+
+let activeBookIds = new Set();
+let currentResults = [];
+let totalMatchCount = 0;
+let shownCount = 0;
+let contextMode = 'chars';
+let matchMode = 'exact';
+
+const el = (id) => document.getElementById(id);
+
+function buildParagraphs(text){
+  const paras = [];
+  let idx = 0;
+  const lines = text.split('\n');
+  for(const line of lines){
+    const start = idx;
+    const end = idx + line.length;
+    if(line.trim().length > 0){
+      paras.push({text: line, start, end});
+    }
+    idx = end + 1;
+  }
+  return paras;
+}
+
+function paragraphIndexForPos(paras, pos){
+  let lo = 0, hi = paras.length - 1, ans = 0;
+  while(lo <= hi){
+    const mid = (lo + hi) >> 1;
+    if(paras[mid].start <= pos){ ans = mid; lo = mid + 1; } else { hi = mid - 1; }
+  }
+  return ans;
+}
+
+const CHAPTER_NUMBER_WORDS = ['One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
+  'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty'];
+const CHAPTER_HEADING_RE = new RegExp('^(Chapter\\s+(?:' + CHAPTER_NUMBER_WORDS.join('|') + ')|Interchapter)\\b');
+const CHAPTER_WORD_TO_NUM = {};
+CHAPTER_NUMBER_WORDS.forEach((w, i) => CHAPTER_WORD_TO_NUM[w] = i + 1);
+
+// Detects chapter headings at the START of a paragraph line. Most books have
+// the heading as its own standalone line ("Chapter One"), but at least one
+// book has it merged into the first line of narrative ("Chapter Two 'My God...'")
+// so this matches a prefix rather than requiring the whole line to be just the heading.
+function buildChapters(paragraphs){
+  const chapters = [];
+  for(const p of paragraphs){
+    const m = p.text.match(CHAPTER_HEADING_RE);
+    if(m){
+      let label;
+      if(m[1] === 'Interchapter'){
+        label = 'Interchapter';
+      } else {
+        const word = m[1].replace(/^Chapter\s+/, '');
+        label = 'Ch. ' + CHAPTER_WORD_TO_NUM[word];
+      }
+      chapters.push({ label, start: p.start });
+    }
+  }
+  return chapters;
+}
+
+function chapterLabelForPos(chapters, pos){
+  if(!chapters || chapters.length === 0) return null;
+  let lo = 0, hi = chapters.length - 1, ans = 0;
+  while(lo <= hi){
+    const mid = (lo + hi) >> 1;
+    if(chapters[mid].start <= pos){ ans = mid; lo = mid + 1; } else { hi = mid - 1; }
+  }
+  return chapters[ans].start <= pos ? chapters[ans].label : null;
+}
+
+async function loadManifest(){
+  const res = await fetch('manifest.json');
+  MANIFEST = await res.json();
+  activeBookIds = new Set(MANIFEST.map(b => b.id));
+  renderBookChips();
+}
+
+async function ensureBookText(id){
+  if(BOOK_CACHE.has(id)) return BOOK_CACHE.get(id);
+  const res = await fetch(`books/${id}.json`);
+  if(!res.ok) throw new Error(`Failed to load book ${id}`);
+  const book = await res.json();
+  const paragraphs = buildParagraphs(book.text);
+  const entry = { text: book.text, paragraphs, chapters: buildChapters(paragraphs) };
+  BOOK_CACHE.set(id, entry);
+  return entry;
+}
+
+async function ensureLemmaTokens(id){
+  if(LEMMA_TOKEN_CACHE.has(id)) return LEMMA_TOKEN_CACHE.get(id);
+  const res = await fetch(`lemma/tokens/${id}.json`);
+  if(!res.ok) throw new Error(`Failed to load lemma data for ${id}`);
+  const tokens = await res.json();
+  LEMMA_TOKEN_CACHE.set(id, tokens);
+  return tokens;
+}
+
+async function ensureLemmaDictionary(){
+  if(LEMMA_VOCAB && LEMMA_WORD_TO_LEMMA) return;
+  if(LEMMA_DATA_LOADING) return LEMMA_DATA_LOADING;
+  LEMMA_DATA_LOADING = (async () => {
+    const [vocabRes, wordRes] = await Promise.all([
+      fetch('lemma/vocab.json'),
+      fetch('lemma/word-to-lemma.json')
+    ]);
+    LEMMA_VOCAB = await vocabRes.json();
+    LEMMA_WORD_TO_LEMMA = await wordRes.json();
+    LEMMA_VOCAB.forEach((l, i) => LEMMA_INDEX.set(l, i));
+  })();
+  await LEMMA_DATA_LOADING;
+}
+
+function renderBookChips(){
+  const container = el('bookChips');
+  container.innerHTML = '';
+  MANIFEST.forEach(book => {
+    const chip = document.createElement('span');
+    chip.className = 'book-chip' + (activeBookIds.has(book.id) ? ' active' : '');
+    chip.innerHTML = '<span class="dot"></span>' + book.seriesIndex + '. ' + book.name;
+    chip.title = book.author + (book.alternateTitle ? ' (AKA "' + book.alternateTitle + '")' : '') + (book.note ? ' — ' + book.note : '');
+    chip.addEventListener('click', () => {
+      if(activeBookIds.has(book.id)){
+        if(activeBookIds.size > 1) activeBookIds.delete(book.id);
+      } else {
+        activeBookIds.add(book.id);
+      }
+      renderBookChips();
+    });
+    container.appendChild(chip);
+  });
+}
+
+el('selectAllBooks').addEventListener('click', () => {
+  activeBookIds = new Set(MANIFEST.map(b => b.id));
+  renderBookChips();
+});
+el('selectNoneBooks').addEventListener('click', () => {
+  if(MANIFEST.length > 0) activeBookIds = new Set([MANIFEST[0].id]);
+  renderBookChips();
+});
+
+function trimToWordBoundary(str, fromEnd){
+  if(fromEnd){
+    const idx = str.indexOf(' ');
+    if(idx === -1) return str;
+    return str.slice(idx + 1);
+  } else {
+    const idx = str.lastIndexOf(' ');
+    if(idx === -1) return str;
+    return str.slice(0, idx);
+  }
+}
+
+function findRawMatches(text, query, caseSensitive, wholeWord){
+  const positions = [];
+  const haystack = caseSensitive ? text : text.toLowerCase();
+  const needle = caseSensitive ? query : query.toLowerCase();
+  let idx = 0;
+  while(true){
+    const found = haystack.indexOf(needle, idx);
+    if(found === -1) break;
+    if(wholeWord){
+      const before = found > 0 ? text[found - 1] : ' ';
+      const afterPos = found + needle.length;
+      const after = afterPos < text.length ? text[afterPos] : ' ';
+      const isWordChar = (c) => /[A-Za-z0-9']/.test(c);
+      if(isWordChar(before) || isWordChar(after)){
+        idx = found + 1;
+        continue;
+      }
+    }
+    positions.push(found);
+    idx = found + needle.length;
+  }
+  return positions;
+}
+
+// Tokenize a lemma-mode query into base word forms, mirroring how the corpus
+// itself was tokenized: spaCy splits contractions/possessives into a base word
+// plus a separate non-alphabetic piece ("captain's" -> "captain" + "'s"), and
+// only the alphabetic piece was ever indexed. So query-side, strip a trailing
+// possessive/contraction tail before lookup, rather than treating the whole
+// apostrophe-joined string as one token.
+function tokenizeLemmaQuery(query){
+  const raw = query.toLowerCase().match(/[a-z']+/g) || [];
+  return raw
+    .map(w => w.replace(/'s$/, '').replace(/s'$/, 's').replace(/^'+|'+$/g, ''))
+    .filter(w => w.length > 0);
+}
+
+function getLemmaQuerySequence(query){
+  const words = tokenizeLemmaQuery(query);
+  if(words.length === 0) return null;
+  const seq = [];
+  for(const w of words){
+    let idx = LEMMA_WORD_TO_LEMMA[w];
+    if(idx === undefined) idx = LEMMA_INDEX.get(w);
+    if(idx === undefined) return null;
+    seq.push(idx);
+  }
+  return seq;
+}
+
+function getLemmaMatchSpans(tokens, lemmaSeq){
+  const spans = [];
+  const k = lemmaSeq.length;
+  for(let i = 0; i <= tokens.length - k; i++){
+    let ok = true;
+    for(let j = 0; j < k; j++){
+      if(tokens[i + j][0] !== lemmaSeq[j]){ ok = false; break; }
+    }
+    if(ok){
+      const first = tokens[i], last = tokens[i + k - 1];
+      spans.push({ start: first[1], length: last[2] - first[1], tokenStart: i, tokenEnd: i + k - 1 });
+    }
+  }
+  return spans;
+}
+
+// Finds pairs of matches (one from spansA, one from spansB) where the word-count
+// gap between them is within maxGap, honoring the order constraint. Both span lists
+// are already sorted by token position (they're built via a single forward pass over
+// the token stream), so a binary-search bound keeps this fast even for very common words.
+function findProximityMatches(spansA, spansB, maxGap, order){
+  const results = [];
+  if(spansA.length === 0 || spansB.length === 0) return results;
+
+  const bStarts = spansB.map(s => s.tokenStart);
+  function lowerBound(arr, val){
+    let lo = 0, hi = arr.length;
+    while(lo < hi){
+      const mid = (lo + hi) >> 1;
+      if(arr[mid] < val) lo = mid + 1; else hi = mid;
+    }
+    return lo;
+  }
+
+  for(const a of spansA){
+    const loIdx = lowerBound(bStarts, a.tokenStart - maxGap - 20);
+    const hiIdx = lowerBound(bStarts, a.tokenEnd + maxGap + 21);
+    for(let idx = Math.max(0, loIdx); idx < Math.min(spansB.length, hiIdx); idx++){
+      const b = spansB[idx];
+      let gap, aBeforeB;
+      if(b.tokenStart > a.tokenEnd){
+        gap = b.tokenStart - a.tokenEnd - 1;
+        aBeforeB = true;
+      } else if(a.tokenStart > b.tokenEnd){
+        gap = a.tokenStart - b.tokenEnd - 1;
+        aBeforeB = false;
+      } else {
+        continue;
+      }
+      if(gap < 0 || gap > maxGap) continue;
+      if(order === 'before' && !aBeforeB) continue;
+      if(order === 'after' && aBeforeB) continue;
+      results.push({ a, b, gap, aBeforeB });
+    }
+  }
+  return results;
+}
+
+function getSpansForBook(text, tokens, query, caseSensitive, wholeWord, mode, lemmaSeq){
+  if(mode === 'lemma'){
+    if(!lemmaSeq) return [];
+    return getLemmaMatchSpans(tokens, lemmaSeq);
+  }
+  return findRawMatches(text, query, caseSensitive, wholeWord)
+    .map(pos => ({ start: pos, length: query.length }));
+}
+
+function buildCharsResults(bookId, bookLabel, text, chapters, spans){
+  const results = [];
+  for(const { start: found, length: matchLen } of spans){
+    const rawStart = Math.max(0, found - CONTEXT_CHARS);
+    const rawEnd = Math.min(text.length, found + matchLen + CONTEXT_CHARS);
+    let left = text.slice(rawStart, found);
+    let right = text.slice(found + matchLen, rawEnd);
+    const match = text.slice(found, found + matchLen);
+    if(rawStart > 0) left = trimToWordBoundary(left, true);
+    if(rawEnd < text.length) right = trimToWordBoundary(right, false);
+    // Collapse internal whitespace runs, but only strip the OUTER edge (away from the
+    // match) — preserving whatever single space (or none) originally sat right next to
+    // the match, so punctuation glued directly to a word (e.g. "ship's") isn't split apart.
+    left = left.replace(/\s+/g, ' ').replace(/^ /, '');
+    right = right.replace(/\s+/g, ' ').replace(/ $/, '');
+    const chapterLabel = chapterLabelForPos(chapters, found);
+    results.push({ type: 'chars', bookId, bookLabel, chapterLabel, left, match, right, position: found });
+  }
+  return results;
+}
+
+function buildParaResults(bookId, bookLabel, text, paras, chapters, spans, contextModeVal, groups, groupIndex){
+  for(const { start: found, length: matchLen } of spans){
+    const pIdx = paragraphIndexForPos(paras, found);
+    const curPara = paras[pIdx];
+    const key = bookId + '|' + contextModeVal + '|' + pIdx;
+    let combinedText, offsetBase;
+    if(contextModeVal === 'para'){
+      combinedText = curPara.text;
+      offsetBase = curPara.start;
+    } else {
+      const prev = paras[pIdx - 1];
+      const next = paras[pIdx + 1];
+      const prefix = prev ? prev.text + '\n\n' : '';
+      const suffix = next ? '\n\n' + next.text : '';
+      combinedText = prefix + curPara.text + suffix;
+      offsetBase = curPara.start - prefix.length;
+    }
+    const matchOffset = found - offsetBase;
+    const chapterLabel = chapterLabelForPos(chapters, found);
+    if(groupIndex.has(key)){
+      groups[groupIndex.get(key)].matches.push({ offset: matchOffset, length: matchLen });
+    } else {
+      groupIndex.set(key, groups.length);
+      groups.push({
+        type: 'para', bookId, bookLabel, chapterLabel, position: curPara.start, text: combinedText,
+        matches: [{ offset: matchOffset, length: matchLen }]
+      });
+    }
+  }
+}
+
+function buildHighlightedHtml(text, matches){
+  const sorted = [...matches].sort((a, b) => a.offset - b.offset);
+  let html = '';
+  let cursor = 0;
+  for(const m of sorted){
+    if(m.offset < cursor) continue;
+    html += escapeHtml(text.slice(cursor, m.offset));
+    html += '<span class="' + (m.cls || 'match') + '">' + escapeHtml(text.slice(m.offset, m.offset + m.length)) + '</span>';
+    cursor = m.offset + m.length;
+  }
+  html += escapeHtml(text.slice(cursor));
+  return html;
+}
+
+function buildProximityCharsResults(bookId, bookLabel, text, chapters, pairs){
+  const results = [];
+  for(const { a, b } of pairs){
+    const first = a.start <= b.start ? a : b;
+    const second = a.start <= b.start ? b : a;
+    const firstCls = a.start <= b.start ? 'match' : 'match-b';
+    const secondCls = a.start <= b.start ? 'match-b' : 'match';
+
+    const rawStart = Math.max(0, first.start - CONTEXT_CHARS);
+    const rawEnd = Math.min(text.length, second.start + second.length + CONTEXT_CHARS);
+
+    let left = text.slice(rawStart, first.start);
+    let mid = text.slice(first.start + first.length, second.start);
+    let right = text.slice(second.start + second.length, rawEnd);
+
+    if(rawStart > 0) left = trimToWordBoundary(left, true);
+    if(rawEnd < text.length) right = trimToWordBoundary(right, false);
+
+    left = left.replace(/\s+/g, ' ').replace(/^ /, '');
+    mid = mid.replace(/\s+/g, ' ');
+    right = right.replace(/\s+/g, ' ').replace(/ $/, '');
+
+    const firstText = text.slice(first.start, first.start + first.length);
+    const secondText = text.slice(second.start, second.start + second.length);
+
+    const windowText = left + firstText + mid + secondText + right;
+    const firstOffset = left.length;
+    const secondOffset = firstOffset + firstText.length + mid.length;
+
+    const chapterLabel = chapterLabelForPos(chapters, first.start);
+    results.push({
+      type: 'proxchars', bookId, bookLabel, chapterLabel, position: first.start,
+      text: windowText,
+      matches: [
+        { offset: firstOffset, length: firstText.length, cls: firstCls },
+        { offset: secondOffset, length: secondText.length, cls: secondCls }
+      ]
+    });
+  }
+  return results;
+}
+
+function buildProximityParaResults(bookId, bookLabel, text, paras, chapters, pairs, contextModeVal, groups, groupIndex){
+  for(const { a, b } of pairs){
+    const first = a.start <= b.start ? a : b;
+    const second = a.start <= b.start ? b : a;
+    const firstCls = a.start <= b.start ? 'match' : 'match-b';
+    const secondCls = a.start <= b.start ? 'match-b' : 'match';
+
+    const pIdxFirst = paragraphIndexForPos(paras, first.start);
+    const pIdxSecond = paragraphIndexForPos(paras, second.start);
+    const key = bookId + '|prox|' + contextModeVal + '|' + pIdxFirst + '|' + pIdxSecond;
+
+    let rangeStartIdx = pIdxFirst, rangeEndIdx = pIdxSecond;
+    if(contextModeVal === 'para3'){
+      rangeStartIdx = Math.max(0, pIdxFirst - 1);
+      rangeEndIdx = Math.min(paras.length - 1, pIdxSecond + 1);
+    }
+
+    const combinedStart = paras[rangeStartIdx].start;
+    const combinedEnd = paras[rangeEndIdx].end;
+    const combinedText = text.slice(combinedStart, combinedEnd);
+
+    const aOffset = a.start - combinedStart;
+    const bOffset = b.start - combinedStart;
+    const chapterLabel = chapterLabelForPos(chapters, first.start);
+
+    if(groupIndex.has(key)){
+      groups[groupIndex.get(key)].matches.push(
+        { offset: aOffset, length: a.length, cls: 'match' },
+        { offset: bOffset, length: b.length, cls: 'match-b' }
+      );
+    } else {
+      groupIndex.set(key, groups.length);
+      groups.push({
+        type: 'para', bookId, bookLabel, chapterLabel, position: paras[pIdxFirst].start, text: combinedText, isProximity: true,
+        matches: [
+          { offset: aOffset, length: a.length, cls: 'match' },
+          { offset: bOffset, length: b.length, cls: 'match-b' }
+        ]
+      });
+    }
+  }
+}
+
+async function runSearch(query, caseSensitive, wholeWord, ctxMode, mMode){
+  if(!query) return { items: [], total: 0 };
+
+  let lemmaSeq = null;
+  if(mMode === 'lemma'){
+    await ensureLemmaDictionary();
+    lemmaSeq = getLemmaQuerySequence(query);
+    if(!lemmaSeq) return { items: [], total: 0, unknownWord: true };
+  }
+
+  const activeIds = MANIFEST.filter(b => activeBookIds.has(b.id));
+  const charsResults = [];
+  const paraGroups = [];
+  const paraGroupIndex = new Map();
+  let total = 0;
+
+  for(const book of activeIds){
+    const { text, paragraphs, chapters } = await ensureBookText(book.id);
+    const tokens = mMode === 'lemma' ? await ensureLemmaTokens(book.id) : null;
+    const spans = getSpansForBook(text, tokens, query, caseSensitive, wholeWord, mMode, lemmaSeq);
+    total += spans.length;
+    const bookLabel = book.seriesIndex + '. ' + book.name;
+    if(ctxMode === 'chars'){
+      charsResults.push(...buildCharsResults(book.id, bookLabel, text, chapters, spans));
+    } else {
+      buildParaResults(book.id, bookLabel, text, paragraphs, chapters, spans, ctxMode, paraGroups, paraGroupIndex);
+    }
+  }
+
+  return { items: ctxMode === 'chars' ? charsResults : paraGroups, total };
+}
+
+function renderCharsLine(r){
+  const line = document.createElement('div');
+  line.className = 'kwic-line';
+  const chapterPart = r.chapterLabel ? (', ' + escapeHtml(r.chapterLabel)) : '';
+  line.innerHTML =
+    '<div class="kwic-coord"><span class="mark">&#9656;</span>' + escapeHtml(r.bookLabel) + chapterPart + ' &middot; ' + String(r.position).padStart(6,'0') + '</div>' +
+    '<div class="kwic-text">' + escapeHtml(r.left) + '<span class="match">' + escapeHtml(r.match) + '</span>' + escapeHtml(r.right) + '</div>';
+  return line;
+}
+
+function renderParaBlock(g){
+  const block = document.createElement('div');
+  block.className = 'para-block';
+  const html = buildHighlightedHtml(g.text, g.matches);
+  let hitLabel = '';
+  if(g.isProximity){
+    const pairCount = g.matches.length / 2;
+    if(pairCount > 1) hitLabel = '<span class="hit-count">(' + pairCount + ' pairs)</span>';
+  } else if(g.matches.length > 1){
+    hitLabel = '<span class="hit-count">(' + g.matches.length + ' occurrences)</span>';
+  }
+  const chapterPart = g.chapterLabel ? (', ' + escapeHtml(g.chapterLabel)) : '';
+  block.innerHTML =
+    '<div class="para-coord"><span class="mark">&#9656;</span>' + escapeHtml(g.bookLabel) + chapterPart + ' &middot; ' + String(g.position).padStart(6,'0') + hitLabel + '</div>' +
+    '<div class="para-text">' + html + '</div>';
+  return block;
+}
+
+function renderProxCharsLine(r){
+  const line = document.createElement('div');
+  line.className = 'kwic-line';
+  const chapterPart = r.chapterLabel ? (', ' + escapeHtml(r.chapterLabel)) : '';
+  const html = buildHighlightedHtml(r.text, r.matches);
+  line.innerHTML =
+    '<div class="kwic-coord"><span class="mark">&#9656;</span>' + escapeHtml(r.bookLabel) + chapterPart + ' &middot; ' + String(r.position).padStart(6,'0') + '</div>' +
+    '<div class="kwic-text">' + html + '</div>';
+  return line;
+}
+
+function renderResults(reset){
+  const container = el('results');
+  const statusBar = el('statusBar');
+  const loadMore = el('loadMore');
+
+  if(reset){
+    container.innerHTML = '';
+    shownCount = 0;
+  }
+
+  if(currentResults.length === 0){
+    statusBar.style.display = 'none';
+    loadMore.style.display = 'none';
+    container.innerHTML = '<div class="empty-state"><div class="big">No matches</div>Try a different word, check your filters, or toggle whole-word off.</div>';
+    return;
+  }
+
+  statusBar.style.display = 'flex';
+  const unit = matchMode === 'proximity' ? 'pair' : 'match';
+  const label = contextMode === 'chars'
+    ? ('<strong>' + totalMatchCount.toLocaleString() + '</strong> ' + unit + (totalMatchCount === 1 ? '' : 's'))
+    : ('<strong>' + totalMatchCount.toLocaleString() + '</strong> ' + unit + (totalMatchCount === 1 ? '' : 's') + ' in <strong>' + currentResults.length.toLocaleString() + '</strong> passage' + (currentResults.length === 1 ? '' : 's'));
+  el('matchCount').innerHTML = label;
+
+  const pageSize = contextMode === 'chars' ? PAGE_SIZE : PAGE_SIZE_PARA;
+  const nextChunk = currentResults.slice(shownCount, shownCount + pageSize);
+  nextChunk.forEach(r => {
+    let node;
+    if(r.type === 'chars') node = renderCharsLine(r);
+    else if(r.type === 'proxchars') node = renderProxCharsLine(r);
+    else node = renderParaBlock(r);
+    container.appendChild(node);
+  });
+  shownCount += nextChunk.length;
+
+  loadMore.style.display = (shownCount < currentResults.length) ? 'block' : 'none';
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function setLoadingState(isLoading, message){
+  const container = el('results');
+  if(isLoading){
+    el('statusBar').style.display = 'none';
+    el('loadMore').style.display = 'none';
+    container.innerHTML = '<div class="loading-state"><div class="loading-inline"><span class="spinner"></span>' + escapeHtml(message || 'Loading&hellip;') + '</div></div>';
+  }
+}
+
+async function doSearch(){
+  const query = el('searchInput').value;
+  const caseSensitive = el('caseSensitive').checked;
+  const wholeWord = el('wholeWord').checked;
+  el('queryEcho').textContent = query ? ('"' + query + '"') : '';
+
+  if(!query){
+    currentResults = [];
+    totalMatchCount = 0;
+    renderResults(true);
+    return;
+  }
+
+  const activeCount = activeBookIds.size;
+  setLoadingState(true, `Searching ${activeCount} book${activeCount === 1 ? '' : 's'}\u2026`);
+
+  try{
+    const { items, total, unknownWord } = await runSearch(query, caseSensitive, wholeWord, contextMode, matchMode);
+    if(unknownWord){
+      currentResults = [];
+      totalMatchCount = 0;
+      el('results').innerHTML = '<div class="empty-state"><div class="big">Word not recognized</div>None of the words in this query appear anywhere in the selected books, so there\'s no word form to match against.</div>';
+      el('statusBar').style.display = 'none';
+      el('loadMore').style.display = 'none';
+      return;
+    }
+    currentResults = items;
+    totalMatchCount = total;
+    renderResults(true);
+  } catch(err){
+    el('results').innerHTML = '<div class="empty-state"><div class="fetch-error">Something failed to load: ' + escapeHtml(err.message) + '</div></div>';
+  }
+}
+
+async function doProximitySearch(){
+  const wordA = el('proxWordA').value.trim();
+  const wordB = el('proxWordB').value.trim();
+  const maxGap = Math.max(1, parseInt(el('proxDistance').value, 10) || 8);
+  const order = el('proxOrderToggle').querySelector('button.active').dataset.order;
+
+  el('queryEcho').textContent = (wordA && wordB) ? ('"' + wordA + '" near "' + wordB + '"') : '';
+
+  if(!wordA || !wordB){
+    currentResults = [];
+    totalMatchCount = 0;
+    renderResults(true);
+    return;
+  }
+
+  const activeCount = activeBookIds.size;
+  setLoadingState(true, `Searching ${activeCount} book${activeCount === 1 ? '' : 's'}\u2026`);
+
+  try{
+    await ensureLemmaDictionary();
+    const seqA = getLemmaQuerySequence(wordA);
+    const seqB = getLemmaQuerySequence(wordB);
+
+    if(!seqA || !seqB){
+      const missing = !seqA && !seqB ? 'Neither word' : (!seqA ? '"' + wordA + '"' : '"' + wordB + '"');
+      currentResults = [];
+      totalMatchCount = 0;
+      el('results').innerHTML = '<div class="empty-state"><div class="big">Word not recognized</div>' + escapeHtml(missing) + ' doesn\'t appear anywhere in the selected books, so there\'s no word form to match against.</div>';
+      el('statusBar').style.display = 'none';
+      el('loadMore').style.display = 'none';
+      return;
+    }
+
+    const activeIds = MANIFEST.filter(b => activeBookIds.has(b.id));
+    const charsResults = [];
+    const paraGroups = [];
+    const paraGroupIndex = new Map();
+    let total = 0;
+
+    for(const book of activeIds){
+      const { text, paragraphs, chapters } = await ensureBookText(book.id);
+      const tokens = await ensureLemmaTokens(book.id);
+      const spansA = getLemmaMatchSpans(tokens, seqA);
+      const spansB = getLemmaMatchSpans(tokens, seqB);
+      const pairs = findProximityMatches(spansA, spansB, maxGap, order);
+      total += pairs.length;
+      const bookLabel = book.seriesIndex + '. ' + book.name;
+      if(contextMode === 'chars'){
+        charsResults.push(...buildProximityCharsResults(book.id, bookLabel, text, chapters, pairs));
+      } else {
+        buildProximityParaResults(book.id, bookLabel, text, paragraphs, chapters, pairs, contextMode, paraGroups, paraGroupIndex);
+      }
+    }
+
+    currentResults = contextMode === 'chars' ? charsResults : paraGroups;
+    totalMatchCount = total;
+    renderResults(true);
+  } catch(err){
+    el('results').innerHTML = '<div class="empty-state"><div class="fetch-error">Something failed to load: ' + escapeHtml(err.message) + '</div></div>';
+  }
+}
+
+el('searchBtn').addEventListener('click', doSearch);
+el('searchInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') doSearch();
+});
+el('loadMoreBtn').addEventListener('click', () => renderResults(false));
+
+el('contextModeToggle').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-mode]');
+  if(!btn) return;
+  contextMode = btn.dataset.mode;
+  [...el('contextModeToggle').children].forEach(b => b.classList.toggle('active', b === btn));
+  if(matchMode === 'proximity'){
+    if(el('proxWordA').value && el('proxWordB').value) doProximitySearch();
+  } else if(el('searchInput').value){
+    doSearch();
+  }
+});
+
+el('matchModeToggle').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-mode]');
+  if(!btn) return;
+  matchMode = btn.dataset.mode;
+  [...el('matchModeToggle').children].forEach(b => b.classList.toggle('active', b === btn));
+
+  const isLemma = matchMode === 'lemma';
+  const isProximity = matchMode === 'proximity';
+  const isExact = matchMode === 'exact';
+
+  el('standardSearchRow').style.display = isProximity ? 'none' : 'flex';
+  el('proximitySearchRow').style.display = isProximity ? 'flex' : 'none';
+  el('proximityOptionsRow').style.display = isProximity ? 'flex' : 'none';
+  el('exactOptionsRow').style.display = isProximity ? 'none' : 'flex';
+  el('caseSensitiveLabel').style.display = isExact ? 'inline-flex' : 'none';
+  el('wholeWordLabel').style.display = isExact ? 'inline-flex' : 'none';
+  el('exactOptionsLabel').style.display = isExact ? 'inline' : 'none';
+  el('matchModeNote').style.display = isLemma ? 'block' : 'none';
+  el('proxModeNote').style.display = isProximity ? 'block' : 'none';
+
+  if(isProximity){
+    if(el('proxWordA').value && el('proxWordB').value) doProximitySearch();
+  } else if(el('searchInput').value){
+    doSearch();
+  }
+});
+
+el('proxOrderToggle').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-order]');
+  if(!btn) return;
+  [...el('proxOrderToggle').children].forEach(b => b.classList.toggle('active', b === btn));
+  if(el('proxWordA').value && el('proxWordB').value) doProximitySearch();
+});
+
+el('proxSearchBtn').addEventListener('click', doProximitySearch);
+el('proxWordA').addEventListener('keydown', (e) => { if(e.key === 'Enter') doProximitySearch(); });
+el('proxWordB').addEventListener('keydown', (e) => { if(e.key === 'Enter') doProximitySearch(); });
+el('proxDistance').addEventListener('change', () => {
+  if(el('proxWordA').value && el('proxWordB').value) doProximitySearch();
+});
+
+loadManifest();
+</script>
+</body>
+</html>
