@@ -1,0 +1,130 @@
+[
+  {
+    "id": "01-master-and-commander",
+    "seriesIndex": 1,
+    "name": "Master and Commander",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "02-post-captain",
+    "seriesIndex": 2,
+    "name": "Post Captain",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "03-hms-surprise",
+    "seriesIndex": 3,
+    "name": "H.M.S. Surprise",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "04-the-mauritius-command",
+    "seriesIndex": 4,
+    "name": "The Mauritius Command",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "05-desolation-island",
+    "seriesIndex": 5,
+    "name": "Desolation Island",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "06-the-fortune-of-war",
+    "seriesIndex": 6,
+    "name": "The Fortune of War",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "07-the-surgeons-mate",
+    "seriesIndex": 7,
+    "name": "The Surgeon's Mate",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "08-the-ionian-mission",
+    "seriesIndex": 8,
+    "name": "The Ionian Mission",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "09-treasons-harbour",
+    "seriesIndex": 9,
+    "name": "Treason's Harbour",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "10-the-far-side-of-the-world",
+    "seriesIndex": 10,
+    "name": "The Far Side of the World",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "11-the-reverse-of-the-medal",
+    "seriesIndex": 11,
+    "name": "The Reverse of the Medal",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "12-the-letter-of-marque",
+    "seriesIndex": 12,
+    "name": "The Letter of Marque",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "13-the-thirteen-gun-salute",
+    "seriesIndex": 13,
+    "name": "The Thirteen-Gun Salute",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "14-the-nutmeg-of-consolation",
+    "seriesIndex": 14,
+    "name": "The Nutmeg of Consolation",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "15-clarissa-oakes",
+    "seriesIndex": 15,
+    "name": "Clarissa Oakes",
+    "author": "Patrick O'Brian",
+    "alternateTitle": "The Truelove"
+  },
+  {
+    "id": "16-the-wine-dark-sea",
+    "seriesIndex": 16,
+    "name": "The Wine-Dark Sea",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "17-the-commodore",
+    "seriesIndex": 17,
+    "name": "The Commodore",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "18-the-yellow-admiral",
+    "seriesIndex": 18,
+    "name": "The Yellow Admiral",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "19-the-hundred-days",
+    "seriesIndex": 19,
+    "name": "The Hundred Days",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "20-blue-at-the-mizzen",
+    "seriesIndex": 20,
+    "name": "Blue at the Mizzen",
+    "author": "Patrick O'Brian"
+  },
+  {
+    "id": "21-the-final-unfinished-voyage",
+    "seriesIndex": 21,
+    "name": "The Final, Unfinished Voyage of Jack Aubrey",
+    "author": "Patrick O'Brian",
+    "note": "Unfinished manuscript (3 chapters), published posthumously"
+  }
+]
